@@ -80,7 +80,7 @@ for (var i=0; i<videoCount; i++){
 	videoToCache.push([]);	
 
 	for (var j=0; j<cacheCount; j++){
-		videoToCache[i].push({ id:j, count:0, time:0});
+		videoToCache[i].push({ id:j, count:0, time:0, size:videoSizes[i]});
 
 		for (var k = cacheToEndPoint[j].length - 1; k>=0; k--){
 			for (var x = endPoints[cacheToEndPoint[j][k]].request.length - 1; x>=0; x--){
@@ -99,7 +99,29 @@ for (var i=0; i<videoCount; i++){
 		}
 	}
 
+
 	videoToCache[i].sort( (a, b)=> (b.time - a.time));
+	for (var j=videoToCache[i].length -1; j>=0; j--){
+		if (videoToCache[i][j].count < 1){
+			videoToCache[i].pop();
+		}
+		else{ break;}
+	}
 
 	//console.log(videoToCache[i]);
 }
+
+var videoToCacheAssoc = [];
+
+for (var i=0; i<videoCount; i++){
+	videoToCacheAssoc.push({vid:i, nodes:videoToCache[i]});
+}
+
+videoToCacheAssoc.sort( function (a, b) {
+	if ( (a.nodes.length + b.nodes.length) == 0){return 0;}
+	else if (a.nodes.length == 0){ return 1;}
+	else if (b.nodes.length == 0){ return -1;}
+	else{ return b.nodes[0].time - a.nodes[0].time;}
+})
+
+//console.log(videoToCacheAssoc);
