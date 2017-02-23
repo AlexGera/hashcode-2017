@@ -3,8 +3,11 @@
 const fs = require('fs');
 
 var fileNames = ['./me_at_the_zoo.in', './videos_worth_spreading.in', './trending_today.in', './kittens.in'];
+var resultNames = ['./me_at_the_zoo.out', './videos_worth_spreading.out', './trending_today.out', './kittens.out'];
 
-var data = fs.readFileSync(fileNames[0]).toString().split("\n");
+var taskCode = 0;
+
+var data = fs.readFileSync(fileNames[taskCode]).toString().split("\n");
 for (var i = data.length - 1; i >= 0; i--) {
 	data[i] = data[i].split(' ').map(parseFloat);
 }
@@ -125,3 +128,61 @@ videoToCacheAssoc.sort( function (a, b) {
 })
 
 //console.log(videoToCacheAssoc);
+/*for (i=0; i<videoCount; i++){
+	if (videoToCacheAssoc[i].nodes.length>0){
+		console.log(videoToCacheAssoc[i].vid, videoToCacheAssoc[i].nodes[0]);
+	}
+}*/
+
+
+var cacheToVideo = [];
+var cacheFreeSpace = [];
+
+for (var i=0; i<cacheCount; i++){
+	cacheFreeSpace.push(cacheSize);
+	cacheToVideo.push([]);
+}
+
+var flag = true;
+while (flag){
+	flag = false;
+	for (var i = 0; i<videoCount; i++){
+		while (videoToCacheAssoc[i].nodes.length>0){
+			if (cacheFreeSpace[videoToCacheAssoc[i].nodes[0].id] >= videoToCacheAssoc[i].nodes[0].size){
+				flag = true;
+				cacheFreeSpace[videoToCacheAssoc[i].nodes[0].id] -= videoToCacheAssoc[i].nodes[0].size;
+				cacheToVideo[videoToCacheAssoc[i].nodes[0].id].push(videoToCacheAssoc[i].vid);
+
+				videoToCacheAssoc[i].nodes = videoToCacheAssoc[i].nodes.slice(1);
+				break;
+			}
+			else{
+				videoToCacheAssoc[i].nodes = videoToCacheAssoc[i].nodes.slice(1);
+			}
+		}
+	}
+}
+
+var usedCache = 0;
+var resultText = '';
+for (var i=0; i<cacheCount; i++){
+	if (cacheToVideo[i].length>0){
+		usedCache++;
+		resultText += "\n"+i;
+		for (var j=0; j<cacheToVideo[i].length; j++){
+			resultText += " "+cacheToVideo[i][j];
+		}
+	}
+}
+resultText = ""+usedCache+resultText;
+
+console.log(cacheToVideo);
+console.log(cacheFreeSpace);
+
+fs.writeFile(resultNames[taskCode], resultText, function(err) {
+	if(err) {
+		return console.log(err);
+	}
+
+	console.log("The file was saved!");
+});
