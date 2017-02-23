@@ -57,7 +57,7 @@ for (var i=0; i<requetCount; i++){
 
 //sort request by count
 for (var i=0; i<endPointCount; i++){
-	endPoints[i].request.sort(  (a, b)=>(b.count-a.count) );
+	endPoints[i].request.sort(  (a, b)=>(b.count - a.count) );
 	//console.log(endPoints[i].request);
 }
 
@@ -68,12 +68,38 @@ for (var i=0; i<cacheCount; i++){
 }
 
 for (var i=0; i<endPointCount; i++){
-	for (var j=endPoints[i].cache.length-1; j>=0; j--){
+	for (var j=endPoints[i].cache.length - 1; j>=0; j--){
 			cacheToEndPoint[endPoints[i].cache[j].id].push(i);
 	}
 }
 
 //console.log(cacheToEndPoint);
 
+var videoToCache = [];
+for (var i=0; i<videoCount; i++){
+	videoToCache.push([]);	
 
+	for (var j=0; j<cacheCount; j++){
+		videoToCache[i].push({ id:j, count:0, time:0});
 
+		for (var k = cacheToEndPoint[j].length - 1; k>=0; k--){
+			for (var x = endPoints[cacheToEndPoint[j][k]].request.length - 1; x>=0; x--){
+				if (endPoints[cacheToEndPoint[j][k]].request[x].id == i){
+					videoToCache[i][j].count += endPoints[cacheToEndPoint[j][k]].request[x].count;
+
+					for (var y = endPoints[cacheToEndPoint[j][k]].cache.length - 1; y>=0; y--){
+						if (endPoints[cacheToEndPoint[j][k]].cache[y].id == j){
+							videoToCache[i][j].time += ( endPoints[cacheToEndPoint[j][k]].data - endPoints[cacheToEndPoint[j][k]].cache[y].lat) * endPoints[cacheToEndPoint[j][k]].request[x].count;
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	videoToCache[i].sort( (a, b)=> (b.time - a.time));
+
+	//console.log(videoToCache[i]);
+}
